@@ -111,14 +111,76 @@
 .headers off
 
 -- Drop existing tables, so you'll start fresh each time this script is run.
--- TODO!
+DROP TABLE IF EXISTS movies;
+DROP TABLE IF EXISTS studios;
+DROP TABLE IF EXISTS characters;
+DROP TABLE IF EXISTS actors;
 
 -- Create new tables, according to your domain model
--- TODO!
+CREATE TABLE movies(
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT,
+  release_year INTEGER,
+  rating TEXT,
+  studio_id INTEGER
+);
+CREATE TABLE studios(
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  studio_name TEXT
+);
+CREATE TABLE actors(
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  actor_name TEXT
+);
+CREATE TABLE characters(
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  actor_id INTEGER,
+  movie_id INTEGER,
+  character_name TEXT
+);
 
 -- Insert data into your database that reflects the sample data shown above
 -- Use hard-coded foreign key IDs when necessary
--- TODO!
+INSERT INTO studios(studio_name)
+VALUES ("Warner Bros.");
+
+INSERT INTO movies (title, release_year, rating, studio_id)
+VALUES ('Batman Begins', 2005, 'PG-13', 1),
+       ('The Dark Knight', 2008, 'PG-13', 1),
+       ('The Dark Knight Rises', 2012, 'PG-13', 1);
+
+INSERT INTO actors (actor_name)
+VALUES 
+    ('Christian Bale'),
+    ('Michael Caine'),
+    ('Liam Neeson'),
+    ('Katie Holmes'),
+    ('Gary Oldman'),
+    ('Heath Ledger'),
+    ('Aaron Eckhart'),
+    ('Maggie Gyllenhaal'),
+    ('Tom Hardy'),
+    ('Joseph Gordon-Levitt'),
+    ('Anne Hathaway');
+
+-- First, retrieve the movie_id for each movie
+INSERT INTO characters (movie_id, actor_id, character_name)
+VALUES 
+    ((SELECT id FROM movies WHERE title = 'Batman Begins'), (SELECT id FROM actors WHERE actor_name = 'Christian Bale'), 'Bruce Wayne'),
+    ((SELECT id FROM movies WHERE title = 'Batman Begins'), (SELECT id FROM actors WHERE actor_name = 'Michael Caine'), 'Alfred'),
+    ((SELECT id FROM movies WHERE title = 'Batman Begins'), (SELECT id FROM actors WHERE actor_name = 'Liam Neeson'), 'Ra''s Al Ghul'),
+    ((SELECT id FROM movies WHERE title = 'Batman Begins'), (SELECT id FROM actors WHERE actor_name = 'Katie Holmes'), 'Rachel Dawes'),
+    ((SELECT id FROM movies WHERE title = 'Batman Begins'), (SELECT id FROM actors WHERE actor_name = 'Gary Oldman'), 'Commissioner Gordon'),
+    ((SELECT id FROM movies WHERE title = 'The Dark Knight'), (SELECT id FROM actors WHERE actor_name = 'Christian Bale'), 'Bruce Wayne'),
+    ((SELECT id FROM movies WHERE title = 'The Dark Knight'), (SELECT id FROM actors WHERE actor_name = 'Heath Ledger'), 'Joker'),
+    ((SELECT id FROM movies WHERE title = 'The Dark Knight'), (SELECT id FROM actors WHERE actor_name = 'Aaron Eckhart'), 'Harvey Dent'),
+    ((SELECT id FROM movies WHERE title = 'The Dark Knight'), (SELECT id FROM actors WHERE actor_name = 'Michael Caine'), 'Alfred'),
+    ((SELECT id FROM movies WHERE title = 'The Dark Knight'), (SELECT id FROM actors WHERE actor_name = 'Maggie Gyllenhaal'), 'Rachel Dawes'),
+    ((SELECT id FROM movies WHERE title = 'The Dark Knight Rises'), (SELECT id FROM actors WHERE actor_name = 'Christian Bale'), 'Bruce Wayne'),
+    ((SELECT id FROM movies WHERE title = 'The Dark Knight Rises'), (SELECT id FROM actors WHERE actor_name = 'Gary Oldman'), 'Commissioner Gordon'),
+    ((SELECT id FROM movies WHERE title = 'The Dark Knight Rises'), (SELECT id FROM actors WHERE actor_name = 'Tom Hardy'), 'Bane'),
+    ((SELECT id FROM movies WHERE title = 'The Dark Knight Rises'), (SELECT id FROM actors WHERE actor_name = 'Joseph Gordon-Levitt'), 'John Blake'),
+    ((SELECT id FROM movies WHERE title = 'The Dark Knight Rises'), (SELECT id FROM actors WHERE actor_name = 'Anne Hathaway'), 'Selina Kyle');
 
 -- Prints a header for the movies output
 .print "Movies"
@@ -126,7 +188,7 @@
 .print ""
 
 -- The SQL statement for the movies output
--- TODO!
+SELECT title, release_year, rating, studios.studio_name FROM movies INNER JOIN studios ON movies.studio_id = studios.id ;
 
 -- Prints a header for the cast output
 .print ""
@@ -134,6 +196,8 @@
 .print "========"
 .print ""
 
-
 -- The SQL statement for the cast output
--- TODO!
+SELECT movies.title, actors.actor_name, characters.character_name 
+FROM characters
+INNER JOIN movies ON characters.movie_id = movies.id 
+INNER JOIN actors ON characters.actor_id = actors.id ;
